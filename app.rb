@@ -1,6 +1,9 @@
 require "sinatra"
 require "sinatra/activerecord"
 require "./models/user.rb"
+require "./models/list.rb"
+require "./models/todo.rb"
+require "./models/tag.rb"
 
 if !ENV["db"].present? then
     ENV["db"] = "db.sqlite3"
@@ -41,4 +44,17 @@ post "/login" do
     end
 
     MultiJson.dump({:success => success})
+end
+
+post "/list" do
+    req = MultiJson.load(request.body.read)
+
+    user = User.find(session[:user_id])
+    puts req["name"]
+    puts user.id
+
+    list = List.new
+    list.name = req["name"]
+    list.user = user
+    list.save
 end
