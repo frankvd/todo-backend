@@ -30,5 +30,8 @@ end
 World{WebratMixinExample.new}
 
 Before do
+    Tag.delete_all
+    Todo.delete_all
+    List.delete_all
     User.delete_all
 end

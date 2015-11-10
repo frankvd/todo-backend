@@ -58,3 +58,11 @@ post "/list" do
     list.user = user
     list.save
 end
+
+delete "/list/:id" do |id|
+    user = User.find(session[:user_id])
+
+    user.lists.destroy(id)
+
+    "success"
+end
