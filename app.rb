@@ -33,9 +33,8 @@ end
 
 post "/login" do
     req = MultiJson.load(request.body.read)
-    puts req["username"]
     user = User.find_by! username: req["username"]
-    puts user
+
     if user.password == req["password"] then
         session[:user_id] = user.id
         success = true
@@ -63,6 +62,24 @@ delete "/list/:id" do |id|
     user = User.find(session[:user_id])
 
     user.lists.destroy(id)
+
+    "success"
+end
+
+post "/list/:id/item" do |id|
+    req = MultiJson.load(request.body.read)
+
+    user = User.find(session[:user_id])
+    list = user.lists.find(id)
+    list.todos.create(name: req["name"])
+
+    "success"
+end
+
+delete "/list/:list_id/item/:item_id" do |list_id, item_id|
+    user = User.find(session[:user_id])
+    list = user.lists.find(list_id)
+    list.todos.destroy(item_id)
 
     "success"
 end

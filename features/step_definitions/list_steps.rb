@@ -14,7 +14,7 @@ end
 Then(/^"([^"]*)" should have (\d+) list named "([^"]*)"$/) do |username, n, name|
   user = User.find_by username: username
 
-  expect(user.lists.size).to eq(1)
+  expect(user.lists.size).to eq(n.to_i)
   expect(user.lists[0].name).to eq(name)
 end
 
