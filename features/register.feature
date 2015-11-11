@@ -1,3 +1,4 @@
+@register
 Feature: A user can create an account
     Scenario: Valid registration
         When "Bob" registers an account with password "hunter2"

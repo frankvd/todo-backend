@@ -4,6 +4,7 @@ require "./models/user.rb"
 require "./models/list.rb"
 require "./models/todo.rb"
 require "./models/tag.rb"
+require "./models/todo_tag.rb"
 
 if !ENV["db"].present? then
     ENV["db"] = "db.sqlite3"
@@ -80,6 +81,29 @@ delete "/list/:list_id/item/:item_id" do |list_id, item_id|
     user = User.find(session[:user_id])
     list = user.lists.find(list_id)
     list.todos.destroy(item_id)
+
+    "success"
+end
+
+post "/list/:list_id/item/:item_id/tag" do |list_id, item_id|
+    req = MultiJson.load(request.body.read)
+    user = User.find(session[:user_id])
+
+    tag = Tag.find_or_create_by name: req["name"]
+
+    list = user.lists.find(list_id)
+    todo = list.todos.find(item_id)
+    todo.todo_tags.create(tag_id: tag.id, todo_id: todo.id)
+
+    "success"
+end
+
+delete "/list/:list_id/item/:item_id/tag/:tag_id" do |list_id, item_id, tag_id|
+    user = User.find(session[:user_id])
+
+    list = user.lists.find(list_id)
+    todo = list.todos.find(item_id)
+    todo.todo_tags.destroy(tag_id)
 
     "success"
 end

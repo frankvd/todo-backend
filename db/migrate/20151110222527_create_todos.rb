@@ -16,7 +16,7 @@ class CreateTodos < ActiveRecord::Migration
             t.timestamps null: false
         end
 
-        create_table :todo_tag do |t|
+        create_table :todo_tags do |t|
             t.belongs_to :todo, index: true
             t.belongs_to :tag, index: true
             t.timestamps null: false
@@ -27,6 +27,6 @@ class CreateTodos < ActiveRecord::Migration
         drop_table :lists
         drop_table :todos
         drop_table :tags
-        drop_table :todo_tag
+        drop_table :todo_tags
     end
 end
