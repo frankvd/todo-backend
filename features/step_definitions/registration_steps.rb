@@ -3,8 +3,6 @@ When(/^"([^"]*)" registers an account with password "([^"]*)"$/) do |username, p
 end
 
 Then(/^the user "([^"]*)" should exist$/) do |username|
-    resp = MultiJson.load(last_response.body)
-    expect(resp["success"]).to eq(true)
     user = User.find_by username: username
     expect(user).to_not be_nil
 end
@@ -17,5 +15,5 @@ end
 
 Then(/^the registration should fail$/) do
     resp = MultiJson.load(last_response.body)
-    expect(resp["success"]).to eq(false)
+    expect(resp["error"]).to eq(true)
 end

@@ -1,21 +1,28 @@
+require 'rubygems'
+require 'bundler/setup'
 require "sinatra"
 require "sinatra/activerecord"
-require "./models/user.rb"
-require "./models/list.rb"
-require "./models/todo.rb"
-require "./models/tag.rb"
 require "./models/todo_tag.rb"
+require "./models/tag.rb"
+require "./models/todo.rb"
+require "./models/list.rb"
+require "./models/user.rb"
 
 if !ENV["db"].present? then
     ENV["db"] = "db.sqlite3"
 end
+
+ENV["host"] = "localhost:8000"
 
 set :database, {adapter: "sqlite3", database: ENV["db"]}
 
 use Rack::Session::Pool, :expire_after => 604800
 
 get "/" do
-    "{\"message\": \"hoi\"}"
+    user = User.find(session[:user_id])
+
+    user.extend(UserRepresenter)
+    user.to_json
 end
 
 post "/register" do
@@ -24,12 +31,13 @@ post "/register" do
     user.username = req["username"]
     user.password = req["password"]
     begin
-        success = user.save
+        user.save
     rescue
-        success = false
+        return MultiJson.dump(error: true)
     end
 
-    MultiJson.dump({:success => success})
+    user.extend(UserRepresenter)
+    user.to_json
 end
 
 post "/login" do
@@ -43,7 +51,8 @@ post "/login" do
         success = false
     end
 
-    MultiJson.dump({:success => success})
+    user.extend(UserRepresenter)
+    user.to_json
 end
 
 post "/list" do
@@ -57,6 +66,9 @@ post "/list" do
     list.name = req["name"]
     list.user = user
     list.save
+
+    list.extend(ListRepresenter)
+    list.to_json
 end
 
 delete "/list/:id" do |id|
@@ -64,7 +76,8 @@ delete "/list/:id" do |id|
 
     user.lists.destroy(id)
 
-    "success"
+    user.extend(UserRepresenter)
+    user.to_json
 end
 
 post "/list/:id/item" do |id|
@@ -74,7 +87,8 @@ post "/list/:id/item" do |id|
     list = user.lists.find(id)
     list.todos.create(name: req["name"])
 
-    "success"
+    list.extend(ListRepresenter)
+    list.to_json
 end
 
 delete "/list/:list_id/item/:item_id" do |list_id, item_id|
@@ -82,7 +96,8 @@ delete "/list/:list_id/item/:item_id" do |list_id, item_id|
     list = user.lists.find(list_id)
     list.todos.destroy(item_id)
 
-    "success"
+    list.extend(ListRepresenter)
+    list.to_json
 end
 
 post "/list/:list_id/item/:item_id/tag" do |list_id, item_id|
@@ -95,7 +110,8 @@ post "/list/:list_id/item/:item_id/tag" do |list_id, item_id|
     todo = list.todos.find(item_id)
     todo.todo_tags.create(tag_id: tag.id, todo_id: todo.id)
 
-    "success"
+    todo.extend(TodoRepresenter)
+    todo.to_json
 end
 
 delete "/list/:list_id/item/:item_id/tag/:tag_id" do |list_id, item_id, tag_id|
@@ -103,7 +119,8 @@ delete "/list/:list_id/item/:item_id/tag/:tag_id" do |list_id, item_id, tag_id|
 
     list = user.lists.find(list_id)
     todo = list.todos.find(item_id)
-    todo.todo_tags.destroy(tag_id)
+    todo.tags.destroy(tag_id)
 
-    "success"
+    todo.extend(TodoRepresenter)
+    todo.to_json
 end

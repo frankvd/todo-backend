@@ -28,7 +28,6 @@ When(/^"([^"]*)" removes the tag "([^"]*)" from "([^"]*)" in "([^"]*)"$/) do |us
     list = user.lists.find_by name: list
     todo = list.todos.find_by name: todo
     tag = Tag.find_by name: tag
-    todo_tag = TodoTag.find_by tag_id: tag.id
 
-    delete "/list/#{list.id}/item/#{todo.id}/tag/#{todo_tag.id}"
+    delete "/list/#{list.id}/item/#{todo.id}/tag/#{tag.id}"
 end
