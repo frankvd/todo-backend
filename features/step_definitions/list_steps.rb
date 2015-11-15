@@ -8,7 +8,7 @@ Given(/^"([^"]*)" is logged in$/) do |username|
 end
 
 When(/^"([^"]*)" adds a list named "([^"]*)"$/) do |arg1, name|
-  post "/list", "{\"name\": \"#{name}\"}"
+  post "/lists", "{\"name\": \"#{name}\"}"
 end
 
 Then(/^"([^"]*)" should have (\d+) list named "([^"]*)"$/) do |username, n, name|
@@ -28,5 +28,5 @@ end
 
 When(/^"([^"]*)" removes the list "([^"]*)"$/) do |username, name|
     list = List.find_by name: name
-    delete "/list/#{list.id}"
+    delete "/lists/#{list.id}"
 end

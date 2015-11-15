@@ -24,7 +24,7 @@ module UserRepresenter
     collection :lists, extend: ListRepresenter, class: List, embedded: true
 
     link :self do
-        ENV["host"] + "/"
+        ENV["host"] + "/me"
     end
 
     link :lists do

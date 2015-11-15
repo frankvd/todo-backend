@@ -3,7 +3,7 @@ When(/^"([^"]*)" adds the tag "([^"]*)" to "([^"]*)" in list "([^"]*)"$/) do |us
     list = user.lists.find_by name: list
     todo = list.todos.find_by name: todo
 
-    post "/list/#{list.id}/item/#{todo.id}/tag", "{\"name\": \"#{tag}\"}"
+    post "/lists/#{list.id}/items/#{todo.id}/tags", "{\"name\": \"#{tag}\"}"
 end
 
 Then(/^"([^"]*)"'s todo "([^"]*)" in list "([^"]*)" should have (\d+) tag "([^"]*)"$/) do |username, todo, list, n, tag|
@@ -29,5 +29,5 @@ When(/^"([^"]*)" removes the tag "([^"]*)" from "([^"]*)" in "([^"]*)"$/) do |us
     todo = list.todos.find_by name: todo
     tag = Tag.find_by name: tag
 
-    delete "/list/#{list.id}/item/#{todo.id}/tag/#{tag.id}"
+    delete "/lists/#{list.id}/items/#{todo.id}/tags/#{tag.id}"
 end

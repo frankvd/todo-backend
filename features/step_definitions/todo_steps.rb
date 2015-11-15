@@ -1,7 +1,7 @@
 When(/^"([^"]*)" adds "([^"]*)" to "([^"]*)"$/) do |username, todo, list|
     user = User.find_by username: username
     list = user.lists.where(name: list).first
-    post "/list/#{list.id}/item", "{\"name\": \"#{todo}\"}"
+    post "/lists/#{list.id}/items", "{\"name\": \"#{todo}\"}"
 end
 
 Then(/^"([^"]*)"'s list "([^"]*)" should have (\d+) todo named "([^"]*)"$/) do |username, list, n, todo|
@@ -23,5 +23,5 @@ When(/^"([^"]*)" removes "([^"]*)" from "([^"]*)"$/) do |username, todo, list|
     list = user.lists.where(name: list).first
     todo = list.todos.where(name: todo).first
 
-    delete "/list/#{list.id}/item/#{todo.id}"
+    delete "/lists/#{list.id}/items/#{todo.id}"
 end

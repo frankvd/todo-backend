@@ -12,17 +12,50 @@ if !ENV["db"].present? then
     ENV["db"] = "db.sqlite3"
 end
 
-ENV["host"] = "localhost:8000"
+ENV["host"] = "http://localhost:3306"
 
 set :database, {adapter: "sqlite3", database: ENV["db"]}
+set :port, 3306
+
+before do
+    content_type 'application/hal+json'
+end
 
 use Rack::Session::Pool, :expire_after => 604800
 
-get "/" do
-    user = User.find(session[:user_id])
+class Home
+    def initialize(cookie)
+        @cookie = cookie
+    end
 
-    user.extend(UserRepresenter)
-    user.to_json
+    def session_id
+        @cookie
+    end
+end
+module HomeRepresenter
+    include Roar::JSON::HAL
+
+    property :session_id
+
+    link :login do
+        {
+            type: "user",
+            href: ENV["host"] + "/login"
+        }
+    end
+    link :register do
+        {
+            type: "user",
+            href: ENV["host"] + "/register"
+        }
+    end
+end
+get "/" do
+    session[:v] = 1
+    n = Home.new(request.cookies["rack.session"])
+    n.extend(HomeRepresenter)
+
+    n.to_json
 end
 
 post "/register" do
@@ -55,7 +88,23 @@ post "/login" do
     user.to_json
 end
 
-post "/list" do
+get "/me" do
+    user = User.find(session[:user_id])
+
+    user.extend(UserRepresenter)
+    user.to_json
+end
+
+get "/lists/:id" do |id|
+    user = User.find(session[:user_id])
+
+    list = user.lists.find(id)
+
+    list.extend(ListRepresenter)
+    list.to_json
+end
+
+post "/lists" do
     req = MultiJson.load(request.body.read)
 
     user = User.find(session[:user_id])
@@ -71,7 +120,7 @@ post "/list" do
     list.to_json
 end
 
-delete "/list/:id" do |id|
+delete "/lists/:id" do |id|
     user = User.find(session[:user_id])
 
     user.lists.destroy(id)
@@ -80,7 +129,17 @@ delete "/list/:id" do |id|
     user.to_json
 end
 
-post "/list/:id/item" do |id|
+get "/lists/:list_id/items/:item_id" do |list_id, item_id|
+    user = User.find(session[:user_id])
+    list = user.lists.find(list_id)
+
+    item = list.todos.find(item_id)
+
+    item.extend(TodoRepresenter)
+    item.to_json
+end
+
+post "/lists/:id/items" do |id|
     req = MultiJson.load(request.body.read)
 
     user = User.find(session[:user_id])
@@ -91,7 +150,7 @@ post "/list/:id/item" do |id|
     list.to_json
 end
 
-delete "/list/:list_id/item/:item_id" do |list_id, item_id|
+delete "/lists/:list_id/items/:item_id" do |list_id, item_id|
     user = User.find(session[:user_id])
     list = user.lists.find(list_id)
     list.todos.destroy(item_id)
@@ -100,7 +159,7 @@ delete "/list/:list_id/item/:item_id" do |list_id, item_id|
     list.to_json
 end
 
-post "/list/:list_id/item/:item_id/tag" do |list_id, item_id|
+post "/lists/:list_id/items/:item_id/tags" do |list_id, item_id|
     req = MultiJson.load(request.body.read)
     user = User.find(session[:user_id])
 
@@ -114,7 +173,7 @@ post "/list/:list_id/item/:item_id/tag" do |list_id, item_id|
     todo.to_json
 end
 
-delete "/list/:list_id/item/:item_id/tag/:tag_id" do |list_id, item_id, tag_id|
+delete "/lists/:list_id/items/:item_id/tags/:tag_id" do |list_id, item_id, tag_id|
     user = User.find(session[:user_id])
 
     list = user.lists.find(list_id)

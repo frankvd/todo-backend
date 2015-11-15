@@ -13,4 +13,16 @@ module TodoRepresenter
     property :name
 
     collection :tags, extend: TagRepresenter, class: Tag
+
+    link :self do
+        ENV["host"] + "/lists/#{list.id}/items/#{id}"
+    end
+
+    link :list do
+        ENV["host"] + "/lists/#{list.id}"
+    end
+
+    link :tags do
+        ENV["host"] + "/lists/#{list.id}/items/#{id}/tags"
+    end
 end
