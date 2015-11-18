@@ -30,4 +30,8 @@ module UserRepresenter
     link :lists do
         ENV["host"] + "/lists"
     end
+
+    link :tags do
+        ENV["host"] + "/tags"
+    end
 end

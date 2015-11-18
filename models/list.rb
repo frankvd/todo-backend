@@ -1,26 +1,28 @@
-require "roar/json/hal"
-
 class List < ActiveRecord::Base
   belongs_to :user
   has_many :todos
 end
 
-module ListRepresenter
+
+class ListRepresenter < Roar::Decorator
     include Roar::JSON::HAL
 
     property :id
     property :name
-    collection :todos, extend: TodoRepresenter, class: Todo, embedded: true
 
     link :me do
         ENV["host"] + "/me"
     end
 
     link :self do
-        ENV["host"] + "/lists/#{id}"
+        ENV["host"] + "/lists/#{represented.id}"
     end
-    
+
     link :items do
-        ENV["host"] + "/lists/#{id}/items"
+        ENV["host"] + "/lists/#{represented.id}/items"
     end
+end
+
+class ListWithTodosRepresenter < ListRepresenter
+    collection :todos, extend: TodoRepresenter, class: Todo, embedded: true
 end

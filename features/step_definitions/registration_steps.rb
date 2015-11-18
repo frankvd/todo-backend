@@ -14,6 +14,5 @@ Given(/^user "([^"]*)" exists$/) do |username|
 end
 
 Then(/^the registration should fail$/) do
-    resp = MultiJson.load(last_response.body)
-    expect(resp["error"]).to eq(true)
+    expect(last_response.status).to eq(400)
 end

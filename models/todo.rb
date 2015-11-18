@@ -12,7 +12,7 @@ module TodoRepresenter
     property :id
     property :name
 
-    collection :tags, extend: TagRepresenter, class: Tag
+    collection :todo_tags, extend: TodoTagRepresenter, class: Tag, as: :tags, embedded: true
 
     link :self do
         ENV["host"] + "/lists/#{list.id}/items/#{id}"
@@ -24,5 +24,27 @@ module TodoRepresenter
 
     link :tags do
         ENV["host"] + "/lists/#{list.id}/items/#{id}/tags"
+    end
+end
+
+class TodoCollection
+    def initialize(todos)
+        @todos = todos
+    end
+
+    def id
+        0
+    end
+
+    def name=(val)
+        @name = val
+    end
+
+    def name
+        @name
+    end
+
+    def todos
+        @todos
     end
 end
