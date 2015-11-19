@@ -11,3 +11,9 @@ Feature: A user can manage lists
         And "Bob" has a list named "world domination"
         When "Bob" removes the list "world domination"
         Then "Bob" should have 1 list named "groceries"
+
+    Scenario: Rename a list
+        Given "Bob" is logged in
+        And "Bob" has a list named "grocery"
+        When "Bob" renames the list "grocery" to "groceries"
+        Then "Bob" should have 1 list named "groceries"

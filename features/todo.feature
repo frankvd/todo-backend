@@ -13,3 +13,10 @@ Feature: A user can add and remove todo's
         And "Bob"'s list "groceries" has a todo named "bread"
         When "Bob" removes "milk" from "groceries"
         Then "Bob"'s list "groceries" should have 1 todo named "bread"
+
+    Scenario: Rename a todo
+        Given "Bob" is logged in
+        And "Bob" has a list named "groceries"
+        And "Bob"'s list "groceries" has a todo named "milk"
+        When "Bob" renames "milk" from "groceries" to "bread"
+        Then "Bob"'s list "groceries" should have 1 todo named "bread"

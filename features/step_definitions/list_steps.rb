@@ -30,3 +30,8 @@ When(/^"([^"]*)" removes the list "([^"]*)"$/) do |username, name|
     list = List.find_by name: name
     delete "/lists/#{list.id}"
 end
+
+When(/^"([^"]*)" renames the list "([^"]*)" to "([^"]*)"$/) do |username, old_name, new_name|
+    list = List.find_by name: old_name
+    post "/lists/#{list.id}", "{\"name\": \"#{new_name}\"}"
+end

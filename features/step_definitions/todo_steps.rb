@@ -25,3 +25,11 @@ When(/^"([^"]*)" removes "([^"]*)" from "([^"]*)"$/) do |username, todo, list|
 
     delete "/lists/#{list.id}/items/#{todo.id}"
 end
+
+When(/^"([^"]*)" renames "([^"]*)" from "([^"]*)" to "([^"]*)"$/) do |username, old_name, list, new_name|
+    user = User.find_by username: username
+    list = user.lists.where(name: list).first
+    todo = list.todos.where(name: old_name).first
+
+    post "/lists/#{list.id}/items/#{todo.id}", "{\"name\": \"#{new_name}\"}"
+end
