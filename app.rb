@@ -15,7 +15,7 @@ if !ENV["db"].present? then
 end
 
 if !ENV["port"].present? then
-    ENV["port"] = 8888
+    ENV["port"] = "8888"
 end
 
 if !ENV["host"].present? then
