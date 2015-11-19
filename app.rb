@@ -19,7 +19,7 @@ if !ENV["port"].present? then
 end
 
 if !ENV["host"].present? then
-    ENV["host"] = "http:/localhost:8888"
+    ENV["host"] = "http://localhost:8888"
 end
 
 set :database, {adapter: "sqlite3", database: ENV["db"]}
@@ -86,6 +86,11 @@ end
 
 # Register a new user
 post "/register" do
+    if @input["username"].strip.blank? or @input["password"].strip.blank? then
+        status 400
+        return MultiJson.dump(message: "Username and password cannot be blank")
+    end
+
     user = User.new
     user.username = @input["username"]
     user.password = @input["password"]
