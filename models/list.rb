@@ -1,9 +1,10 @@
+# List model
 class List < ActiveRecord::Base
   belongs_to :user
   has_many :todos
 end
 
-
+# List representer without embedded items
 class ListRepresenter < Roar::Decorator
     include Roar::JSON::HAL
 
@@ -23,6 +24,7 @@ class ListRepresenter < Roar::Decorator
     end
 end
 
+# List representer with embedded items
 class ListWithTodosRepresenter < ListRepresenter
     collection :todos, extend: TodoRepresenter, class: Todo, embedded: true
 end

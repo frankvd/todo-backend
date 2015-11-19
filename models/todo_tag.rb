@@ -1,3 +1,4 @@
+# TodoTag model
 class TodoTag < ActiveRecord::Base
     belongs_to :todo
     belongs_to :tag
@@ -11,7 +12,7 @@ class TodoTag < ActiveRecord::Base
     end
 end
 
-
+# TodoTag representer
 module TodoTagRepresenter
     include Roar::JSON::HAL
 

@@ -1,10 +1,12 @@
 require "roar/json/hal"
 
+# Tag model
 class Tag < ActiveRecord::Base
     has_many :todo_tags
     has_many :todos, through: :todo_tags
 end
 
+# Tag representer
 module TagRepresenter
     include Roar::JSON::HAL
 
@@ -16,6 +18,7 @@ module TagRepresenter
     end
 end
 
+# Tag collection representer
 module TagsRepresenter
     include Roar::JSON::HAL
 
@@ -26,6 +29,7 @@ module TagsRepresenter
     end
 end
 
+# Tag collection
 class TagCollection
     def initialize(tags)
         @tags = tags

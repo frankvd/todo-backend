@@ -14,10 +14,16 @@ if !ENV["db"].present? then
     ENV["db"] = "db.sqlite3"
 end
 
-ENV["host"] = "http://localhost:3306"
+if !ENV["port"].present? then
+    ENV["port"] = 8888
+end
+
+if !ENV["host"].present? then
+    ENV["host"] = "http:/localhost:8888"
+end
 
 set :database, {adapter: "sqlite3", database: ENV["db"]}
-set :port, 3306
+set :port, ENV["port"]
 use Rack::Session::Pool, :expire_after => 604800
 
 # Set Content-Type, protect non login/register routes and try to load json body
@@ -38,6 +44,7 @@ before do
     end
 end
 
+# Home class
 class Home
     def initialize(cookie)
         @cookie = cookie
@@ -48,6 +55,7 @@ class Home
     end
 end
 
+# Home representer
 module HomeRepresenter
     include Roar::JSON::HAL
 
@@ -66,6 +74,8 @@ module HomeRepresenter
         }
     end
 end
+
+# Root
 get "/" do
     session[:v] = 1
     n = Home.new(request.cookies["rack.session"])
@@ -74,6 +84,7 @@ get "/" do
     n.to_json
 end
 
+# Register a new user
 post "/register" do
     user = User.new
     user.username = @input["username"]
@@ -89,6 +100,7 @@ post "/register" do
     user.to_json
 end
 
+# Login
 post "/login" do
     begin
         user = User.find_by! username: @input["username"]
@@ -107,17 +119,20 @@ post "/login" do
     user.to_json
 end
 
+# Returns the logged in user
 get "/me" do
     @user.extend(UserRepresenter)
     @user.to_json
 end
 
+# Returns the list with the given ID
 get "/lists/:id" do |id|
     list = @user.lists.find(id)
 
     ListWithTodosRepresenter.new(list).to_json
 end
 
+# Add a new list
 post "/lists" do
     list = List.new
     list.name = @input["name"]
@@ -127,6 +142,7 @@ post "/lists" do
     ListWithTodosRepresenter.new(list).to_json
 end
 
+# Update an existing list
 post "/lists/:id" do |id|
     list = @user.lists.find(id)
 
@@ -138,12 +154,21 @@ post "/lists/:id" do |id|
     ListWithTodosRepresenter.new(list).to_json
 end
 
+# Remove a list
 delete "/lists/:id" do |id|
     @user.lists.destroy(id)
     @user.extend(UserRepresenter)
     @user.to_json
 end
 
+# Add an item to a list
+post "/lists/:id/items" do |id|
+    list = @user.lists.find(id)
+    list.todos.create(name: @input["name"])
+    ListWithTodosRepresenter.new(list).to_json
+end
+
+# Returns a single todo item
 get "/lists/:list_id/items/:item_id" do |list_id, item_id|
     list = @user.lists.find(list_id)
     item = list.todos.find(item_id)
@@ -151,12 +176,7 @@ get "/lists/:list_id/items/:item_id" do |list_id, item_id|
     item.to_json
 end
 
-post "/lists/:id/items" do |id|
-    list = @user.lists.find(id)
-    list.todos.create(name: @input["name"])
-    ListWithTodosRepresenter.new(list).to_json
-end
-
+# Update an item
 post "/lists/:list_id/items/:item_id" do |list_id, item_id|
     list = @user.lists.find(list_id)
     todo = list.todos.find(item_id)
@@ -170,12 +190,14 @@ post "/lists/:list_id/items/:item_id" do |list_id, item_id|
     todo.to_json
 end
 
+# Delete an item
 delete "/lists/:list_id/items/:item_id" do |list_id, item_id|
     list = @user.lists.find(list_id)
     list.todos.destroy(item_id)
     ListWithTodosRepresenter.new(list).to_json
 end
 
+# Add a tag to an item
 post "/lists/:list_id/items/:item_id/tags" do |list_id, item_id|
     tag = Tag.find_or_create_by name: @input["name"]
     list = @user.lists.find(list_id)
@@ -185,6 +207,7 @@ post "/lists/:list_id/items/:item_id/tags" do |list_id, item_id|
     todo.to_json
 end
 
+# Remove a tag from an item
 delete "/lists/:list_id/items/:item_id/tags/:tag_id" do |list_id, item_id, tag_id|
     list = @user.lists.find(list_id)
     todo = list.todos.find(item_id)
@@ -193,6 +216,7 @@ delete "/lists/:list_id/items/:item_id/tags/:tag_id" do |list_id, item_id, tag_i
     todo.to_json
 end
 
+# Get all tags for the logged in user
 get "/tags" do
     query = <<-SQL
         SELECT t.* FROM tags t
@@ -207,6 +231,7 @@ get "/tags" do
     collection.to_json
 end
 
+# Get all todo items with a given tag
 get "/tags/:id/todos" do |id|
     query = <<-SQL
         SELECT t.* FROM todos t

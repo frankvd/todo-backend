@@ -1,6 +1,7 @@
 require "bcrypt"
 require "roar/json/hal"
 
+# User model
 class User < ActiveRecord::Base
     include BCrypt
 
@@ -16,6 +17,7 @@ class User < ActiveRecord::Base
       end
 end
 
+# User representer
 module UserRepresenter
     include Roar::JSON::HAL
 

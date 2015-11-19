@@ -1,11 +1,13 @@
 require "roar/json/hal"
 
+# Todo model
 class Todo < ActiveRecord::Base
   belongs_to :list
   has_many :todo_tags
   has_many :tags, through: :todo_tags
 end
 
+# Todo representer
 module TodoRepresenter
     include Roar::JSON::HAL
 
@@ -27,6 +29,7 @@ module TodoRepresenter
     end
 end
 
+# Todo collection
 class TodoCollection
     def initialize(todos)
         @todos = todos
