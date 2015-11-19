@@ -96,6 +96,7 @@ post "/register" do
         return MultiJson.dump(message: "User '#{user.username}' already exists")
     end
 
+    session[:user_id] = user.id
     user.extend(UserRepresenter)
     user.to_json
 end
